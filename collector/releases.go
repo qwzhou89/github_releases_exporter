@@ -2,6 +2,7 @@ package collector
 
 import (
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -38,7 +39,7 @@ func NewReleasesCollector(config *config.Config, client client.Client) prometheu
 		downloads: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "asset_download_count"),
 			"Download count of each asset of a github release",
-			[]string{"repository", "tag", "name", "extension"},
+			[]string{"repository", "tag", "prerelease", "pubtime", "name", "extension"},
 			nil,
 		),
 		scrapeDuration: prometheus.NewDesc(
@@ -87,7 +88,7 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 				continue
 			}
 			for _, asset := range assets {
-				ext :=  strings.TrimPrefix(filepath.Ext(asset.Name), ".")
+				ext := strings.TrimPrefix(filepath.Ext(asset.Name), ".")
 				log.Debugf(
 					"collecting %s@%s / %s (%s)",
 					repository,
@@ -100,6 +101,8 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 					prometheus.CounterValue,
 					float64(asset.Downloads),
 					repository,
+					strconv.FormatBool(release.Prerelease),
+					release.PublishedTime,
 					release.Tag,
 					asset.Name,
 					ext,

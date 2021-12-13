@@ -6,8 +6,10 @@ type Client interface {
 }
 
 type Release struct {
-	ID  int64
-	Tag string
+	ID            int64
+	Tag           string
+	Prerelease    bool
+	PublishedTime string
 }
 
 type Asset struct {
