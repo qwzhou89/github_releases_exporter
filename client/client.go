@@ -9,7 +9,7 @@ type Release struct {
 	ID            int64
 	Tag           string
 	Prerelease    bool
-	PublishedTime string
+	PublishedTime int64
 }
 
 type Asset struct {

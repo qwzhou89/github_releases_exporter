@@ -20,6 +20,7 @@ type releasesCollector struct {
 
 	up             *prometheus.Desc
 	downloads      *prometheus.Desc
+	releases       *prometheus.Desc
 	scrapeDuration *prometheus.Desc
 }
 
@@ -42,6 +43,12 @@ func NewReleasesCollector(config *config.Config, client client.Client) prometheu
 			[]string{"repository", "prerelease", "pubtime", "tag", "name", "extension"},
 			nil,
 		),
+		releases: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "timestamp"),
+			"release time of a github release",
+			[]string{"repository", "tag", "prerelease"},
+			nil,
+		),
 		scrapeDuration: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "scrape_duration_seconds"),
 			"Returns how long the probe took to complete in seconds",
@@ -55,6 +62,7 @@ func NewReleasesCollector(config *config.Config, client client.Client) prometheu
 func (c *releasesCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up
 	ch <- c.downloads
+	ch <- c.releases
 	ch <- c.scrapeDuration
 }
 
@@ -87,6 +95,15 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 				)
 				continue
 			}
+			ch <- prometheus.MustNewConstMetric(
+				c.releases,
+				prometheus.GaugeValue,
+				float64(release.PublishedTime),
+				repository,
+				release.Tag,
+				strconv.FormatBool(release.Prerelease),
+			)
+
 			for _, asset := range assets {
 				ext := strings.TrimPrefix(filepath.Ext(asset.Name), ".")
 				log.Debugf(
@@ -101,8 +118,6 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 					prometheus.CounterValue,
 					float64(asset.Downloads),
 					repository,
-					strconv.FormatBool(release.Prerelease),
-					release.PublishedTime,
 					release.Tag,
 					asset.Name,
 					ext,
