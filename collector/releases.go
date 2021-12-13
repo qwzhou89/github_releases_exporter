@@ -39,7 +39,7 @@ func NewReleasesCollector(config *config.Config, client client.Client) prometheu
 		downloads: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "asset_download_count"),
 			"Download count of each asset of a github release",
-			[]string{"repository", "tag", "prerelease", "pubtime", "name", "extension"},
+			[]string{"repository", "prerelease", "pubtime", "tag", "name", "extension"},
 			nil,
 		),
 		scrapeDuration: prometheus.NewDesc(
