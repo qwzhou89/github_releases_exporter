@@ -9,7 +9,6 @@ type Client interface {
 
 type Release struct {
 	ID            int64
-	NodeID        string
 	Tag           string
 	Prerelease    bool
 	PublishedTime github.Timestamp

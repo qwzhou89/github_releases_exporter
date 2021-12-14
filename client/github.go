@@ -48,13 +48,21 @@ func (c githubClient) Releases(repository string) ([]Release, error) {
 			return allReleases, err
 		}
 		for _, release := range releases {
-			allReleases = append(allReleases, Release{
+			nRelease := Release{
 				ID:            release.GetID(),
-				NodeID:        release.GetNodeID(),
 				Tag:           release.GetTagName(),
 				Prerelease:    *release.Prerelease,
 				PublishedTime: release.GetPublishedAt(),
-			})
+			}
+			found := false
+			for _, release := range allReleases {
+				if nRelease.ID == release.ID && nRelease.Tag == release.Tag {
+					found = true
+				}
+			}
+			if !found {
+				allReleases = append(allReleases, nRelease)
+			}
 			if c.max > 0 && len(allReleases) >= c.max {
 				return allReleases, nil
 			}
