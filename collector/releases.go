@@ -46,7 +46,7 @@ func NewReleasesCollector(config *config.Config, client client.Client) prometheu
 		publishedTime: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "published_time"),
 			"published time of a github release",
-			[]string{"repository", "tag", "prerelease"},
+			[]string{"repository", "releaseid", "tag", "prerelease"},
 			nil,
 		),
 		scrapeDuration: prometheus.NewDesc(
@@ -89,6 +89,7 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 				prometheus.GaugeValue,
 				float64(release.PublishedTime),
 				repository,
+				strconv.FormatInt(release.ID, 10),
 				release.Tag,
 				strconv.FormatBool(release.Prerelease),
 			)
