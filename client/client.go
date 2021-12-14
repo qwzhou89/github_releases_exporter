@@ -1,5 +1,7 @@
 package client
 
+import "github.com/google/go-github/github"
+
 type Client interface {
 	Releases(repo string) ([]Release, error)
 	Assets(repo string, id int64) ([]Asset, error)
@@ -7,9 +9,10 @@ type Client interface {
 
 type Release struct {
 	ID            int64
+	NodeID        string
 	Tag           string
 	Prerelease    bool
-	PublishedTime int64
+	PublishedTime github.Timestamp
 }
 
 type Asset struct {

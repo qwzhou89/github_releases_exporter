@@ -50,9 +50,10 @@ func (c githubClient) Releases(repository string) ([]Release, error) {
 		for _, release := range releases {
 			allReleases = append(allReleases, Release{
 				ID:            release.GetID(),
+				NodeID:        release.GetNodeID(),
 				Tag:           release.GetTagName(),
 				Prerelease:    *release.Prerelease,
-				PublishedTime: release.GetPublishedAt().Unix(),
+				PublishedTime: release.GetPublishedAt(),
 			})
 			if c.max > 0 && len(allReleases) >= c.max {
 				return allReleases, nil
