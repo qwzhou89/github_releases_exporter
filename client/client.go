@@ -9,9 +9,11 @@ type Client interface {
 
 type Release struct {
 	ID            int64
+	Name          string
 	Tag           string
 	Prerelease    bool
 	PublishedTime github.Timestamp
+	Description   string
 }
 
 type Asset struct {
