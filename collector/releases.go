@@ -2,6 +2,7 @@ package collector
 
 import (
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -84,21 +85,17 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 
 		for _, release := range releases {
-			desc := strings.TrimSpace(release.Description)
-			if len(desc) > 50 {
-				desc = desc[:50]
-			}
 			ch <- prometheus.MustNewConstMetric(
 				c.publishedTime,
 				prometheus.GaugeValue,
 				float64(release.PublishedTime.Unix()),
 				repository,
 				strconv.FormatInt(release.ID, 10),
-				release.Name,
+				sanitizeLabelValue(release.Name),
 				release.PublishedTime.String(),
 				release.Tag,
 				strconv.FormatBool(release.Prerelease),
-				desc,
+				sanitizeLabelValue(release.Description),
 			)
 
 			assets, err := c.client.Assets(repository, release.ID)
@@ -135,4 +132,18 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	ch <- prometheus.MustNewConstMetric(c.scrapeDuration, prometheus.GaugeValue, time.Since(start).Seconds())
 	ch <- prometheus.MustNewConstMetric(c.up, prometheus.GaugeValue, float64(success))
+}
+
+// sanitizeLabelValue 清理字符串以符合 Prometheus 标签的要求
+func sanitizeLabelValue(value string) string {
+	// 去除前后的空白字符
+	value = strings.TrimSpace(value)
+	// 使用正则表达式替换特殊字符
+	re := regexp.MustCompile(`[^a-zA-Z0-9_-]`)
+	value = re.ReplaceAllString(value, "_")
+	// 限制长度
+	if len(value) > 100 {
+		value = value[:100]
+	}
+	return value
 }
