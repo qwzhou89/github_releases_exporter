@@ -84,6 +84,10 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 
 		for _, release := range releases {
+			desc := strings.TrimSpace(release.Description)
+			if len(desc) > 50 {
+				desc = desc[:50]
+			}
 			ch <- prometheus.MustNewConstMetric(
 				c.publishedTime,
 				prometheus.GaugeValue,
@@ -94,7 +98,7 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 				release.PublishedTime.String(),
 				release.Tag,
 				strconv.FormatBool(release.Prerelease),
-				strings.Trim(release.Description[:50], " "),
+				desc,
 			)
 
 			assets, err := c.client.Assets(repository, release.ID)
