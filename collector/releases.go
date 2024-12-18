@@ -2,11 +2,11 @@ package collector
 
 import (
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"unicode/utf8"
 
 	"github.com/caarlos0/github_releases_exporter/client"
 	"github.com/caarlos0/github_releases_exporter/config"
@@ -139,16 +139,9 @@ func sanitizeLabelValue(value string) string {
 	// 去除前后的空白字符
 	value = strings.TrimSpace(value)
 
-	// 验证并清理无效的 UTF-8 字符
-	if !utf8.ValidString(value) {
-		validUTF8 := make([]rune, 0, len(value))
-		for _, r := range value {
-			if utf8.ValidRune(r) {
-				validUTF8 = append(validUTF8, r)
-			}
-		}
-		value = string(validUTF8)
-	}
+	// 使用正则表达式替换特殊字符
+	re := regexp.MustCompile(`[^a-zA-Z0-9_-]`)
+	value = re.ReplaceAllString(value, "_")
 
 	// 限制长度
 	if len(value) > 100 {
