@@ -138,11 +138,9 @@ func (c *releasesCollector) Collect(ch chan<- prometheus.Metric) {
 func sanitizeLabelValue(value string) string {
 	// 去除前后的空白字符
 	value = strings.TrimSpace(value)
-
-	// 使用正则表达式替换特殊字符
-	re := regexp.MustCompile(`[^a-zA-Z0-9_-]`)
+	// 使用正则表达式替换可见 ASCII 字符以外的字符
+	re := regexp.MustCompile(`[^\x20-\x7E]+`)
 	value = re.ReplaceAllString(value, "_")
-
 	// 限制长度
 	if len(value) > 100 {
 		value = value[:100]
