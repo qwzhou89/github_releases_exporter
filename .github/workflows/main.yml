@@ -1,0 +1,12 @@
+name: Actions Runner Controller Demo
+on:
+  workflow_dispatch:
+
+jobs:
+  Explore-GitHub-Actions:
+    # You need to use the INSTALLATION_NAME from the previous step
+    runs-on: arc-runner-set
+    steps:
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3  # 或使用 curl 手动安装
+      - run: kubectl -h
