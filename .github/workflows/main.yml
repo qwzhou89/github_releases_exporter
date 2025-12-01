@@ -5,8 +5,8 @@ on:
 jobs:
   Explore-GitHub-Actions:
     # You need to use the INSTALLATION_NAME from the previous step
-    runs-on: arc-runner-set
+    runs-on: arc-runner-set-with-kube
     steps:
       - name: Install kubectl
         uses: azure/setup-kubectl@v3  # 或使用 curl 手动安装
-      - run: kubectl -h
+      - run: pwd;kubectl get no
